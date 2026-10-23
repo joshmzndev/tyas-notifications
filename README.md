@@ -5,11 +5,15 @@ A simple Flask-based notification system with a sender interface and receiver in
 ## Features
 
 - Send notifications through a web interface
-- Receive notifications with audio alerts (plays 3 times)
+- Receive notifications with audio alerts (plays 3 times initially)
+- Audio repeats every 30 seconds until acknowledged
+- Acknowledge button to stop repeating audio alerts
+- Test Audio button to verify sound is working
 - Works even when the receiver tab is not focused
 - No authentication required
 - Polls for new notifications every 2 seconds
 - All receivers get the same notification
+- Persists last notification check in browser to prevent re-showing old notifications on refresh
 
 ## Requirements
 
@@ -47,8 +51,13 @@ Open `http://YOUR_SERVER_IP:5000/sender` in a web browser to send notifications.
 Open `http://YOUR_SERVER_IP:5000/receiver` in a web browser to receive notifications.
 
 1. Click anywhere on the page when you first open it (required to enable sound)
-2. Keep the tab open (can be in the background)
-3. When a notification arrives, you'll hear the alarm sound play 3 times
+2. Use the "Test Audio" button to verify your sound is working properly
+3. Keep the tab open (can be in the background)
+4. When a notification arrives:
+   - You'll hear the alarm sound play 3 times immediately
+   - The sound will repeat every 30 seconds until you acknowledge
+   - Click "Acknowledge & Stop Sound" to stop the repeating audio
+5. The page remembers the last notification you received, so refreshing won't show old notifications
 
 ## Deployment Notes
 
@@ -60,7 +69,7 @@ Open `http://YOUR_SERVER_IP:5000/receiver` in a web browser to receive notificat
   - Using a production WSGI server (gunicorn, uWSGI)
   - Setting up a reverse proxy (nginx, Apache)
   - Adding authentication if needed
-  - Changing `debug=True` to `debug=False` in app.py
+  - The app currently runs with `debug=False` (production mode)
 
 ## File Structure
 
@@ -69,10 +78,12 @@ tyas-notifications/
 ├── app.py                    # Flask backend
 ├── requirements.txt          # Python dependencies
 ├── static/
+│   ├── icon.png             # Favicon
 │   └── notification.mp3      # Audio file (you need to add this)
 ├── templates/
 │   ├── sender.html          # Notification sender interface
 │   └── receiver.html        # Notification receiver interface
+├── CLAUDE.md                # Developer documentation for Claude Code
 └── README.md                # This file
 ```
 

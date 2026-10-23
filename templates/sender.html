@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Send Notification</title>
+    <link rel="icon" type="image/png" href="/static/icon.png">
     <style>
         * {
             margin: 0;
@@ -13,7 +14,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #1B1B3D;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -22,16 +23,17 @@
         }
 
         .container {
-            background: white;
+            background: #F5F5DC;
             border-radius: 12px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             padding: 40px;
             max-width: 500px;
             width: 100%;
+            border: 2px solid #B8860B;
         }
 
         h1 {
-            color: #333;
+            color: #C41E3A;
             margin-bottom: 30px;
             text-align: center;
             font-size: 28px;
@@ -44,43 +46,45 @@
         label {
             display: block;
             margin-bottom: 8px;
-            color: #555;
+            color: #2F2F2F;
             font-weight: 500;
         }
 
         textarea {
             width: 100%;
             padding: 12px;
-            border: 2px solid #e0e0e0;
+            border: 2px solid #E5E5E5;
             border-radius: 8px;
             font-size: 16px;
             font-family: inherit;
             resize: vertical;
             min-height: 120px;
             transition: border-color 0.3s;
+            background: white;
         }
 
         textarea:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #4169E1;
         }
 
         button {
             width: 100%;
             padding: 14px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #C41E3A;
             color: white;
             border: none;
             border-radius: 8px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
         }
 
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 5px 15px rgba(196, 30, 58, 0.5);
+            background: #B8860B;
         }
 
         button:active {
@@ -103,15 +107,15 @@
         }
 
         .message.success {
-            background-color: #d4edda;
+            background-color: #d4f4dd;
             color: #155724;
-            border: 1px solid #c3e6cb;
+            border: 2px solid #B8860B;
         }
 
         .message.error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+            background-color: #ffd4d4;
+            color: #C41E3A;
+            border: 2px solid #C41E3A;
         }
 
         .message.show {
@@ -145,13 +149,21 @@
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const message = messageInput.value.trim() || 'Time is up!';
+            // Get the message value, only use default if it's completely empty
+            const message = messageInput.value || 'Time is up!';
+
+            // Show confirmation dialog
+            const confirmed = confirm(`Are you sure you want to send this notification to all receivers?\n\nMessage: ${message}`);
+
+            if (!confirmed) {
+                return; // User cancelled, don't send
+            }
 
             sendBtn.disabled = true;
             sendBtn.textContent = 'Sending...';
 
             try {
-                const response = await fetch('http://localhost:5000/api/send', {
+                const response = await fetch('https://notifications.tyas.manzano.dev/api/send', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

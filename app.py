@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
-from datetime import datetime
+from datetime import datetime, timezone
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -32,7 +32,7 @@ def send_notification():
         return jsonify({'error': 'Message is required'}), 400
 
     latest_notification['message'] = message
-    latest_notification['timestamp'] = datetime.now().isoformat()
+    latest_notification['timestamp'] = datetime.now(timezone.utc).isoformat()
 
     return jsonify({'success': True, 'message': 'Notification sent'})
 
@@ -43,14 +43,34 @@ def check_notification():
 
     # If there's a notification and it's newer than the last check
     if latest_notification['message'] and latest_notification['timestamp']:
-        if not last_check or latest_notification['timestamp'] > last_check:
+        if not last_check:
             return jsonify({
                 'has_notification': True,
                 'message': latest_notification['message'],
                 'timestamp': latest_notification['timestamp']
             })
 
+        # Parse ISO timestamps and compare as datetime objects
+        try:
+            notification_time = datetime.fromisoformat(latest_notification['timestamp'])
+            last_check_time = datetime.fromisoformat(last_check)
+
+            if notification_time > last_check_time:
+                return jsonify({
+                    'has_notification': True,
+                    'message': latest_notification['message'],
+                    'timestamp': latest_notification['timestamp']
+                })
+        except (ValueError, AttributeError):
+            # If parsing fails, fall back to string comparison for safety
+            if latest_notification['timestamp'] > last_check:
+                return jsonify({
+                    'has_notification': True,
+                    'message': latest_notification['message'],
+                    'timestamp': latest_notification['timestamp']
+                })
+
     return jsonify({'has_notification': False})
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=False, threaded=True)

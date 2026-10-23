@@ -19,7 +19,7 @@ python app.py
 ```
 Server starts at `http://0.0.0.0:5000`
 
-Note: The app runs with `debug=True` by default. Change to `debug=False` for production.
+Note: The app runs with `debug=False` by default (production setting).
 
 ### Required Assets
 The system requires `notification.mp3` in the `static/` directory. This file must be manually added and is not tracked in git.
@@ -48,15 +48,23 @@ Both templates are self-contained with inline CSS and JavaScript (no build step)
 
 **receiver.html**
 - Polls `/api/check` every 2 seconds
-- Tracks `lastCheck` timestamp to avoid re-processing same notification
+- Tracks `lastCheck` timestamp in localStorage to persist across page refreshes and avoid re-processing same notification
 - Audio playback requires initial user interaction (click anywhere on page)
 - Plays audio 3 times sequentially using Promise-based async playback
 - Shows notification message with timestamp when received
 - HTML escape function prevents XSS
+- "Test Audio" button plays notification sound 3 times to verify audio is working
+- "Acknowledge & Stop Sound" button stops repeating audio alerts (plays every 30 seconds until acknowledged)
+- Acknowledged state persists until new notification arrives
+- Clock display shows current time in HH:MM:SS format
+- Link to PTC schedule (Google Sheets)
 
 ## Key Behaviors
 - Only ONE notification stored at a time (new notifications overwrite old)
 - ALL receivers get the SAME notification (broadcast model)
 - Audio must be user-activated first due to browser autoplay policies
 - Receiver works even when browser tab is not focused
-- No notification history or persistence
+- No notification history or persistence on server
+- Last checked timestamp persists in browser localStorage to prevent showing old notifications after page refresh
+- Audio repeats every 30 seconds until user acknowledges the notification
+- Professional "Acknowledge & Stop Sound" button with clean styling (no pulsing animation)
